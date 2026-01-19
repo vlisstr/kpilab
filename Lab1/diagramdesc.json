@@ -1,1 +1,83 @@
+{
+  "Book": {
+    "type": "object",
+    "description": "Основная информация об издании",
+    "properties": {
+      "BookID": { "type": "integer", "minimum": 1 },
+      "ISBN": { "type": "string", "pattern": "^[0-9-]{10,17}$" },
+      "Title": { "type": "string" },
+      "YearPublished": { "type": "integer" },
+      "Genre": { "type": "string" },
+      "PublisherID": { "type": "integer" }
+    },
+    "required": ["BookID", "ISBN", "Title", "PublisherID"]
+  },
 
+  "Copy": {
+    "type": "object",
+    "description": "Конкретный физический экземпляр книги",
+    "properties": {
+      "CopyID": { "type": "integer", "minimum": 1 },
+      "BookID": { "type": "integer" },
+      "Condition": { "type": "string", "enum": ["New", "Good", "Fair", "Poor"] },
+      "IsAvailable": { "type": "boolean", "default": true }
+    },
+    "required": ["CopyID", "BookID", "IsAvailable"]
+  },
+
+  "Author": {
+    "type": "object",
+    "properties": {
+      "AuthorID": { "type": "integer", "minimum": 1 },
+      "FullName": { "type": "string" },
+      "BirthDate": { "type": "string", "format": "date" },
+      "Nationality": { "type": "string" }
+    },
+    "required": ["AuthorID", "FullName"]
+  },
+
+  "BookAuthor": {
+    "type": "object",
+    "description": "Связь 'многие-ко-многим' между книгами и авторами",
+    "properties": {
+      "BookID": { "type": "integer" },
+      "AuthorID": { "type": "integer" }
+    },
+    "required": ["BookID", "AuthorID"]
+  },
+
+  "Member": {
+    "type": "object",
+    "description": "Данные зарегистрированного читателя",
+    "properties": {
+      "MemberID": { "type": "integer", "minimum": 1 },
+      "FullName": { "type": "string" },
+      "Email": { "type": "string", "format": "email" },
+      "Phone": { "type": "string" },
+      "Address": { "type": "string" },
+      "MembershipStatus": { "type": "string", "enum": ["Active", "Suspended", "Expired"] },
+      "JoinDate": { "type": "string", "format": "date" }
+    },
+    "required": ["MemberID", "FullName", "Email"]
+  },
+
+  "Loan": {
+    "type": "object",
+    "description": "Запись о выдаче книги на руки",
+    "properties": {
+      "LoanID": { "type": "integer", "minimum": 1 },
+      "CopyID": { "type": "integer" },
+      "MemberID": { "type": "integer" },
+      "LoanDate": { "type": "string", "format": "date" },
+      "DueDate": { "type": "string", "format": "date" },
+      "ReturnDate": { "type": ["string", "null"], "format": "date" },
+      "FineAmount": { "type": "number", "minimum": 0, "default": 0.0 }
+    },
+    "required": ["LoanID", "CopyID", "MemberID", "LoanDate", "DueDate"]
+  },
+
+  "Publisher": {
+    "type": "object",
+    "properties": {
+      "PublisherID": { "type": "integer", "minimum": 1 },
+      "Name": { "type": "string" },

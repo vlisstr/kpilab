@@ -1,0 +1,61 @@
+@startuml
+entity Publisher {
+  *PublisherID : int
+  Name : string
+  Address : string
+}
+
+entity Book {
+  *BookID : int
+  ISBN : string
+  Title : string
+  YearPublished : int
+  Genre : string
+  PublisherID : int
+}
+
+entity Copy {
+  *CopyID : int
+  Condition : string
+  IsAvailable : boolean
+  BookID : int
+}
+
+entity Author {
+  *AuthorID : int
+  FullName : string
+  BirthDate : date
+}
+
+entity BookAuthor {
+  *BookID : int
+  *AuthorID : int
+}
+
+entity Member {
+  *MemberID : int
+  FullName : string
+  Email : string
+  Phone : string
+  Address : string
+  MemberType : string
+  JoinDate : date
+}
+
+entity Loan {
+  *LoanID : int
+  CopyID : int
+  MemberID : int
+  LoanDate : date
+  DueDate : date
+  ReturnDate : date
+  FineAmount : float
+}
+
+Publisher ||--|{ Book
+Book ||--o{ Copy
+Book ||--|{ BookAuthor
+Author ||--|{ BookAuthor
+Member ||--|{ Loan
+Copy ||--|{ Loan
+@enduml

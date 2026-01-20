@@ -1,0 +1,39 @@
+@startuml
+
+actor "Бібліотекар" as Librarian
+participant "Система бібліотеки" as System
+participant "База даних" as DB
+
+Librarian -> System: Натиснути "Додати книгу"
+System --> Librarian: Форма введення
+
+Librarian -> System: Ввести дані (ISBN, назва, автор, видавництво)
+System -> DB: Перевірити ISBN на унікальність
+
+alt ISBN вже існує
+    DB --> System: Книга знайдена
+    System --> Librarian: "Книга вже є в каталозі"
+else ISBN унікальний
+    DB --> System: ISBN вільний
+    
+    System -> DB: Перевірити автора
+    alt Автор не існує
+        DB --> System: Автор не знайдений
+        System --> Librarian: "Створити нового автора?"
+        Librarian -> System: Підтвердити + дані автора
+        System -> DB: Додати автора
+    end
+    
+    System -> DB: Зберегти книгу
+    DB --> System: Книга створена
+    
+    loop Для кожної копії
+        Librarian -> System: Ввести стан копії
+        System -> DB: Додати копію книги
+        DB --> System: Копія додана
+    end
+    
+    System --> Librarian: "Книга успішно додана"
+end
+
+@enduml

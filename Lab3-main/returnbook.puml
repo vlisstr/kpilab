@@ -1,0 +1,47 @@
+@startuml
+
+actor "Бібліотекар" as Librarian
+participant "Система бібліотеки" as System
+participant "База даних" as DB
+actor "Читач" as Member
+
+Librarian -> System: Повернення книги (LoanID)
+System -> DB: Отримати дані позики
+
+alt Позика не знайдена
+    DB --> System: Помилка
+    System --> Librarian: "Позику не знайдено"
+else Позика знайдена
+    DB --> System: Дані позики (дата видачі, термін)
+    System -> System: Розрахувати прострочення
+    
+    alt Без прострочення
+        System -> DB: Закрити позику
+        System -> DB: Позначити копію як доступну
+        DB --> System: Успіх
+        System --> Librarian: "Книга повернута вчасно"
+    else Є прострочення
+        System -> System: Розрахувати штраф (дні × 5 грн)
+        System -> DB: Створити запис штрафу
+        DB --> System: Штраф створено
+        
+        System --> Librarian: "Штраф: [сума] грн"
+        Librarian -> Member: Повідомити про штраф
+        Member --> Librarian: Згода оплатити
+        
+        alt Оплата готівкою
+            Librarian -> System: Підтвердити оплату
+            System -> DB: Позначити штраф як оплачений
+        else Безготівкова оплата
+            System -> System: Ініціювати платіж
+            System -> DB: Оновити статус після оплати
+        end
+        
+        System -> DB: Закрити позику
+        System -> DB: Позначити копію як доступну
+        DB --> System: Успіх
+        System --> Librarian: "Штраф оплачено, книга повернута"
+    end
+end
+
+@enduml

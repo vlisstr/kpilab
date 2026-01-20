@@ -1,0 +1,43 @@
+@startuml
+
+actor "Читач" as Member
+participant "Система бібліотеки" as System
+participant "База даних" as DB
+
+Member -> System: Відкрити каталог
+System --> Member: Показати форму пошуку
+
+Member -> System: Ввести пошуковий запит (назва/автор)
+System -> DB: Пошук книг за критеріями
+
+alt Книги не знайдено
+    DB --> System: Порожній результат
+    System --> Member: "Книги не знайдено"
+else Книги знайдено
+    DB --> System: Список книг
+    System --> Member: Показати результати
+    
+    loop Перегляд книг
+        Member -> System: Обрати книгу
+        System -> DB: Отримати деталі + доступність копій
+        DB --> System: Інформація про книгу та копії
+        System --> Member: Показати деталі (автор, рік, доступність)
+    end
+    
+    opt Резервування книги
+        Member -> System: Зарезервувати книгу
+        System -> DB: Перевірити доступність
+        
+        alt Є вільна копія
+            DB --> System: Копія доступна
+            System -> DB: Створити резервацію
+            DB --> System: Успіх
+            System --> Member: "Книга зарезервована на 3 дні"
+        else Всі копії зайняті
+            DB --> System: Немає копій
+            System --> Member: "Книга недоступна. Додати в список очікування?"
+        end
+    end
+end
+
+@enduml

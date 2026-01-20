@@ -1,0 +1,45 @@
+@startuml
+left to right direction
+actor "Бібліотекар" as Librarian
+actor "Читач" as Member
+actor "Платіжна система" as PaymentSystem
+
+rectangle "Система бібліотеки" {
+    (AddBook)
+    (EditBook)
+    (SearchBook)
+    (ViewCatalog)
+    (RegisterMember)
+    (LoanBook)
+    (ReturnBook)
+    (CalculateFine)
+    (PayFine)
+    (GenerateReport)
+    (SyncPayments)
+    (ViewLoanHistory)
+}
+
+' Зв’язки акторів
+Librarian --> (AddBook)
+Librarian --> (EditBook)
+Librarian --> (RegisterMember)
+Librarian --> (LoanBook)
+Librarian --> (ReturnBook)
+Librarian --> (GenerateReport)
+Librarian --> (CalculateFine)
+
+Member --> (SearchBook)
+Member --> (ViewCatalog)
+Member --> (LoanBook)
+Member --> (ReturnBook)
+Member --> (PayFine)
+Member --> (ViewLoanHistory)
+
+PaymentSystem --> (SyncPayments)
+(SyncPayments) .> (PayFine) : <<include>>
+
+' Розширення (extend)
+(LoanBook) .> (CalculateFine) : <<extend>>
+(ReturnBook) .> (CalculateFine) : <<extend>>
+
+@enduml

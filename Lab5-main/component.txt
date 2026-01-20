@@ -1,0 +1,160 @@
+graph TB
+    subgraph Actors["Зовнішні актори"]
+        Librarian["Бібліотекар"]
+        Reader["Читач"]
+    end
+
+    subgraph Sustem["Система бібліотеки"]
+        
+        subgraph UI["Presentation Layer"]
+            WebUI["Web Interface"]
+            MobileUI["Mobile App"]
+        end
+        
+        APIGateway["API Gateway<br/>◉ REST API<br/>○ Route Requests"]
+        
+        subgraph Auth["Auth Module"]
+            AuthEntryPoint["◉ Auth Entry Points"]
+            AuthController["Auth Controller"]
+            AuthService["Auth Service"]
+            AuthRepo["Auth Repository"]
+            AuthAPI["○ Auth API"]
+        end
+        
+        subgraph BookMgmt["Book Management Module"]
+            BookEntryPoint["◉ Book Entry Points"]
+            BookController["Book Controller"]
+            BookService["Book Service"]
+            BookRepo["Book Repository"]
+            BookAPI["○ Book API"]
+        end
+        
+        subgraph ReaderMgmt["Reader Management Module"]
+            ReaderEntryPoint["◉ Reader Entry Points"]
+            ReaderController["Reader Controller"]
+            ReaderService["Reader Service"]
+            ReaderRepo["Reader Repository"]
+            ReaderAPI["○ Reader API"]
+        end
+        
+        subgraph LoanMgmt["Loan Management Module"]
+            LoanEntryPoint["◉ Loan Entry Points"]
+            LoanController["Loan Controller"]
+            LoanService["Loan Service"]
+            LoanRepo["Loan Repository"]
+            LoanAPI["○ Loan API"]
+        end
+        
+        subgraph FineMgmt["Fine Management Module"]
+            FineEntryPoint["◉ Fine Entry Points"]
+            FineController["Fine Controller"]
+            FineService["Fine Service"]
+            FineRepo["Fine Repository"]
+            FineAPI["○ Fine API"]
+        end
+        
+        subgraph Catalog["Catalog Module"]
+            CatalogEntryPoint["◉ Catalog Entry Points"]
+            CatalogController["Catalog Controller"]
+            CatalogService["Catalog Service"]
+            CatalogRepo["Catalog Repository"]
+            CatalogAPI["○ Catalog API"]
+        end
+        
+        subgraph Notification["Notification Module"]
+            NotifService["Notification Service<br/>◉ INotificationService<br/>○ Email Provider<br/>○ SMS Provider"]
+        end
+        
+        subgraph Payment["Payment Module"]
+            PaymentService["Payment Gateway<br/>◉ IPaymentService<br/>○ Payment Provider API"]
+        end
+        
+        subgraph DataAccess["Data Access Layer"]
+            DBConnection["DB Connection<br/>◉ DB Connector"]
+            ORM["ORM Mapper<br/>◉ IDataMapper"]
+        end
+        
+        Database[("PostgreSQL<br/>Database<br/>◉ SQL Queries")]
+    end
+    
+    subgraph External["Зовнішні системи"]
+        OAuth2["OAuth2 Provider<br/>Google/Facebook"]
+        EmailService["Email Service<br/>SMTP/SendGrid"]
+        SMSGateway["SMS Gateway<br/>Twilio"]
+        PaymentProvider["Payment Provider<br/>Stripe/PayPal"]
+        SearchEngine["Search Engine<br/>Elasticsearch"]
+        CloudStorage["Cloud Storage<br/>Backups"]
+    end
+
+    Librarian -->|HTTPS| WebUI
+    Reader -->|HTTPS| MobileUI
+    WebUI -->|REST| APIGateway
+    MobileUI -->|REST| APIGateway
+
+    APIGateway -->|HTTP| AuthEntryPoint
+    APIGateway -->|HTTP| BookEntryPoint
+    APIGateway -->|HTTP| ReaderEntryPoint
+    APIGateway -->|HTTP| LoanEntryPoint
+    APIGateway -->|HTTP| FineEntryPoint
+    APIGateway -->|HTTP| CatalogEntryPoint
+
+    AuthEntryPoint --> AuthController
+    AuthController --> AuthService
+    AuthService --> AuthRepo
+    AuthService --> AuthAPI
+    AuthAPI -->|OAuth2| OAuth2
+
+    BookEntryPoint --> BookController
+    BookController --> BookService
+    BookService --> BookRepo
+    BookService --> BookAPI
+
+    ReaderEntryPoint --> ReaderController
+    ReaderController --> ReaderService
+    ReaderService --> ReaderRepo
+    ReaderService --> ReaderAPI
+
+    LoanEntryPoint --> LoanController
+    LoanController --> LoanService
+    LoanService --> LoanRepo
+    LoanService --> LoanAPI
+    LoanService -->|Notify| NotifService
+
+    FineEntryPoint --> FineController
+    FineController --> FineService
+    FineService --> FineRepo
+    FineService --> FineAPI
+    FineService -->|Payment| PaymentService
+
+    CatalogEntryPoint --> CatalogController
+    CatalogController --> CatalogService
+    CatalogService --> CatalogRepo
+    CatalogService --> CatalogAPI
+    CatalogAPI -->|Search| SearchEngine
+
+    AuthRepo --> DBConnection
+    BookRepo --> DBConnection
+    ReaderRepo --> DBConnection
+    LoanRepo --> DBConnection
+    FineRepo --> DBConnection
+    CatalogRepo --> DBConnection
+    
+    DBConnection --> ORM
+    ORM -->|SQL| Database
+
+    NotifService -->|SMTP| EmailService
+    NotifService -->|API| SMSGateway
+
+    PaymentService -->|API| PaymentProvider
+
+    Database -.->|Backup| CloudStorage
+
+    classDef uiClass fill:#e1f5e1,stroke:#333
+    classDef serviceClass fill:#e1e5f5,stroke:#333
+    classDef dataClass fill:#f5e1e1,stroke:#333
+    classDef externalClass fill:#fff9e1,stroke:#333
+    
+    class WebUI,MobileUI uiClass
+    class APIGateway,AuthController,AuthService,BookController,BookService,ReaderController,ReaderService,LoanController,LoanService,FineController,FineService,CatalogController,CatalogService,NotifService,PaymentService serviceClass
+    class Database,DBConnection,ORM dataClass
+    class OAuth2,EmailService,SMSGateway,PaymentProvider,SearchEngine,CloudStorage externalClass

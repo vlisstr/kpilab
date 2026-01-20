@@ -1,0 +1,97 @@
+flowchart TB
+    Start([Початок:<br/>Читач приходить<br/>до бібліотеки])
+    
+    %% Читач
+    A1[👤 ЧИТАЧ:<br/>Подати запит<br/>на видачу книги]
+    D1{👤 Книга<br/>зарезервована?}
+    A2[👤 ЧИТАЧ:<br/>Надати MemberID]
+    A3[👤 ЧИТАЧ:<br/>Назвати ISBN книги]
+    A17[👤 ЧИТАЧ:<br/>Отримати книгу]
+    A18[👤 ЧИТАЧ:<br/>Отримати квитанцію]
+    
+    %% Бібліотекар
+    B1[👨‍💼 БІБЛІОТЕКАР:<br/>Ввести MemberID<br/>у систему]
+    D2{👨‍💼 Читач<br/>існує?}
+    B2[👨‍💼 БІБЛІОТЕКАР:<br/>Показати помилку]
+    B3[👨‍💼 БІБЛІОТЕКАР:<br/>Переглянути профіль]
+    D3{👨‍💼 Є активні<br/>штрафи?}
+    B4[👨‍💼 БІБЛІОТЕКАР:<br/>Попередити про штрафи]
+    D4{👨‍💼 Погасити<br/>штрафи?}
+    B5[👨‍💼 БІБЛІОТЕКАР:<br/>Прийняти оплату]
+    B6[👨‍💼 БІБЛІОТЕКАР:<br/>Ввести ISBN]
+    D5{👨‍💼 Копія<br/>доступна?}
+    B7[👨‍💼 БІБЛІОТЕКАР:<br/>Книга недоступна]
+    B8[👨‍💼 БІБЛІОТЕКАР:<br/>Роздрукувати квитанцію]
+    B9[👨‍💼 БІБЛІОТЕКАР:<br/>Видати книгу читачу]
+    
+    %% Система
+    S1[💻 СИСТЕМА:<br/>SELECT * FROM Member]
+    S2[💻 СИСТЕМА:<br/>SELECT * FROM Fine]
+    S3[💻 СИСТЕМА:<br/>UPDATE Fine SET Paid]
+    S4[💻 СИСТЕМА:<br/>SELECT * FROM Copy]
+    Fork{{⑂ AND Gateway<br/>Паралельні операції}}
+    S5[💻 СИСТЕМА:<br/>INSERT INTO Loan]
+    S6[💻 СИСТЕМА:<br/>UPDATE Copy<br/>IsAvailable=FALSE]
+    Join{{⑃ AND Gateway<br/>Синхронізація}}
+    S7[💻 СИСТЕМА:<br/>Генерація квитанції]
+    Timer[⏰ ТАЙМЕР:<br/>Через 13 днів]
+    S8[📧 СИСТЕМА:<br/>Відправити SMS]
+    
+    Success([🟢 Успіх:<br/>Книга видана])
+    Error([🔴 Помилка:<br/>Відмова])
+    
+    Start --> A1
+    A1 --> D1
+    D1 -->|Так| A2
+    D1 -->|Ні| A2
+    A2 --> A3
+    A3 --> B1
+    B1 --> S1
+    S1 --> D2
+    D2 -->|Ні| B2
+    B2 --> Error
+    D2 -->|Так| B3
+    B3 --> S2
+    S2 --> D3
+    D3 -->|Так| B4
+    B4 --> D4
+    D4 -->|Так| B5
+    B5 --> S3
+    S3 --> B6
+    D4 -->|Ні| B6
+    D3 -->|Ні| B6
+    B6 --> S4
+    S4 --> D5
+    D5 -->|Ні| B7
+    B7 --> Error
+    D5 -->|Так| Fork
+    Fork --> S5
+    Fork --> S6
+    S5 --> Join
+    S6 --> Join
+    Join --> S7
+    S7 --> B8
+    B8 --> B9
+    B9 --> A17
+    A17 --> A18
+    A18 --> Timer
+    Timer --> S8
+    S8 --> Success
+    
+    classDef startEnd fill:#90EE90,stroke:#006400,stroke-width:3px
+    classDef error fill:#FF6B6B,stroke:#8B0000,stroke-width:3px
+    classDef decision fill:#FFD700,stroke:#FF8C00,stroke-width:2px
+    classDef parallel fill:#DDA0DD,stroke:#8B008B,stroke-width:3px
+    classDef system fill:#E6E6FA,stroke:#6A5ACD,stroke-width:2px
+    classDef timer fill:#87CEEB,stroke:#4682B4,stroke-width:2px
+    classDef reader fill:#FFE4E1,stroke:#FF69B4,stroke-width:1px
+    classDef librarian fill:#F0E68C,stroke:#DAA520,stroke-width:1px
+    
+    class Start,Success startEnd
+    class Error error
+    class D1,D2,D3,D4,D5 decision
+    class Fork,Join parallel
+    class S1,S2,S3,S4,S5,S6,S7,S8 system
+    class Timer timer
+    class A1,A2,A3,A17,A18 reader
+    class B1,B2,B3,B4,B5,B6,B7,B8,B9 librarian
